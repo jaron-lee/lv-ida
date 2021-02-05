@@ -1,0 +1,13 @@
+Package: lvida
+Type: Package
+Title: Latent Variable IDA
+Version: 0.1.0
+Author: Daniel Malinsky [cre], 
+    Adarsh Subbaswamy [aut], 
+    Jaron Lee [aut]
+Maintainer: Jaron Lee <jaron2005@gmail.com>
+Description: LV-IDA for estimating causal effects with ancestral graph Markov Models.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
