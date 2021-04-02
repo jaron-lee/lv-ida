@@ -2,7 +2,7 @@
 % Please edit documentation in R/lvida.R
 \name{lv.ida}
 \alias{lv.ida}
-\title{LV-IDA}
+\title{Run Latent Variable-IDA}
 \usage{
 lv.ida(
   x.pos,

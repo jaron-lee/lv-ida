@@ -2,3 +2,4 @@
 
 export(is.cyclic)
 export(lv.ida)
+export(is.ancestor)
