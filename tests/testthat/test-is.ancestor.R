@@ -1,12 +1,3 @@
-test_that("is.ancestors works with named matrices", {
-    gMag <- matrix(c(0, 3, 2, 0), nrow=2, dimnames = list(c("a", "b"), c("a", "b")))
-    print(gMag)
-    x.pos <- "a"
-    y.pos <- "b"
-    result <- is.ancestor(x.pos, y.pos, gMag)
-    expect_equal(result, TRUE)
-})
-
 test_that("is.ancestors works with unnamed matrices", {
     gMag <- matrix(c(0, 3, 2, 0), nrow=2, dimnames = NULL)
     print(gMag)

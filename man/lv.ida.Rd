@@ -2,13 +2,14 @@
 % Please edit documentation in R/lvida.R
 \name{lv.ida}
 \alias{lv.ida}
-\title{Run Latent Variable-IDA}
+\title{Estimate Causal Effects with LV-IDA}
 \usage{
 lv.ida(
   x.pos,
   y.pos,
-  mcov,
   pag,
+  data = NULL,
+  mcov = NULL,
   method = "global",
   nMags = 500,
   localcap = NULL,
@@ -21,15 +22,17 @@ lv.ida(
 )
 }
 \arguments{
-\item{x.pos}{column of x in d.mat}
+\item{x.pos}{}
 
-\item{y.pos}{column of y in d.mat}
+\item{y.pos}{}
 
-\item{mcov}{Covariance matrix that was used to estimate graphEst}
+\item{pag}{}
 
-\item{pag}{PAG matrix found by FCI **this is necessary for the time being because there isn't a way to get from the graphical object to the matrix**}
+\item{data}{}
 
-\item{method}{"local" - local; "global" - all MAGs}
+\item{mcov}{}
+
+\item{method}{}
 
 \item{nMags}{}
 
@@ -48,31 +51,8 @@ lv.ida(
 \item{bugwatch}{}
 }
 \value{
-causal values
+
 }
 \description{
-Estimate the causal effect of x on y; the graphEst and correlation
-matrix have to be precomputed; all MAGs can be precomputed
-}
-\examples{
-first, choose number of variables and sample size
-pvar <- 8
-sample <- 1000
-x <- 2
-y <- pvar
-
-rDAG <- pcalg::randomDAG(n = pvar, prob= 0.5, lB = 0.5, uB = 1.5)
-data <- pcalg::rmvDAG(sample,rDAG,errDist="normal")
-suffStat <- list(C=cor(data),n=nrow(data))
-rules <- c(TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,TRUE,TRUE) # don't want any possible --- edges
-fci.est <- pcalg::fci(suffStat, indepTest = pcalg::gaussCItest, p = ncol(data), alpha=0.01, rules=rules)
-
-plot(fci.est)
-
-if(is.cyclic(fci.est@amat)){
-  cat("#### FOUND CYCLIC GRAPH #### \n LV-IDA won't work here! \n try again! \n")
-}
-
-lv.ida.est <- lv.ida(x,y,cov(data),fci.est@amat,method="local")
-lv.ida.est # this is the multiset of causal effects of x = 2 on y = pvar
+Estimates the effect p(Y | do(X)) in a PAG using the Latent-Variable IDA algorithm by Malinsky and Spirtes.
 }

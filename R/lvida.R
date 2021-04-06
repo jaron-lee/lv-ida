@@ -1,6 +1,3 @@
-#library(pcalg)
-#library(igraph)
-
 lm.cov <- function (C, y, x) {
     solve(C[x, x], C[x, y, drop = FALSE])[1,]
 }
@@ -148,7 +145,8 @@ is.path <- function(a, b, g, internal = FALSE) {
                 a2 <- ind1[x, 1]
                 if (a2 == a_old)
                     next
-                foundpath <- append(foundpath, is.path(a2, b, g, internal = TRUE))
+                foundpath <-
+                    append(foundpath, is.path(a2, b, g, internal = TRUE))
                 if (any(foundpath) == TRUE)
                     break
             }
@@ -191,7 +189,8 @@ cond2 <- function(tmp_old, pag, q) {
         # there is at least one C*->A
         cd.ind <-
             which(tmp_old[, xy[2]] == 2) + (nrow(tmp_old) * (xy[2] - 1)) # list of positions of variables with arrowheads into A
-        cd.ind2 <- which(tmp_old == 2, arr.ind = TRUE, useNames = FALSE)
+        cd.ind2 <-
+            which(tmp_old == 2, arr.ind = TRUE, useNames = FALSE)
         cd.ind.a <- subset(cd.ind2, cd.ind2[, 2] == xy[2])
         #cd.ind.a <- which(tmp_old[,xy[2]]==2, arr.ind=TRUE, useNames=FALSE) # same list as above but in <row,col> form
         for (f in cd.ind) {
@@ -212,7 +211,8 @@ cond2 <- function(tmp_old, pag, q) {
                 # if C<->A
                 #cat("THERE IS A C<->A **********************", "\n")
                 if (!(tmp_old[cd.xy[1], xy[1]] == 2 &&
-                      (tmp_old[xy[1], cd.xy[1]] == 3 || tmp_old[xy[1], cd.xy[1]] == 2))) {
+                      (tmp_old[xy[1], cd.xy[1]] == 3 ||
+                       tmp_old[xy[1], cd.xy[1]] == 2))) {
                     #cat("BUT NO C<->B OR C-->B !!!! **********************", "\n")
                     return(FALSE)
                 } #return(FALSE) # if neither C-->B or C<->B
@@ -318,7 +318,8 @@ listMags <-
              opag = pag) {
         cat("Entering listMags... \n")
         tag <- pag
-        ccomp <- matrix(0, nrow(pag), ncol(pag), dimnames = dimnames(pag)) #empty copy of pag
+        ccomp <-
+            matrix(0, nrow(pag), ncol(pag), dimnames = dimnames(pag)) #empty copy of pag
         p <- ncol(pag)
         cat("original pag = ", "\n")
         print(pag)
@@ -351,7 +352,7 @@ listMags <-
         ccomp_g <-
             as(ccomp, "graphNEL") # make the circle component of the pag into a graph
         ccomp_m <-
-            wgtMatrix(ccomp_g) # get the wgtMatrix of the circle component graph (a pattern/CPDAG)
+            pcalg::wgtMatrix(ccomp_g) # get the wgtMatrix of the circle component graph (a pattern/CPDAG)
         cat("Entering allDags method... \n")
         #cat("print circle component: \n")
         #print(ccomp_m)
@@ -385,26 +386,30 @@ listMags <-
                         for (j in 1:ncol(opag)) {
                             if (opag[i, j] == 1 &&
                                 opag[j, i] == 1)
-                                ccomp_opag[i, j] <- ccomp_opag[j, i] <- 1
+                                ccomp_opag[i, j] <-
+                                    ccomp_opag[j, i] <- 1
                         }
                     }
                     # now ccomp_opag is the circle component of original pag
                     rem <- c()
                     for (k in 1:nrow(listDags)) {
                         ccomp_opag_tmp <- ccomp_opag
-                        dag <- matrix(listDags[k, ], p, p) # current dag in list
+                        dag <-
+                            matrix(listDags[k, ], p, p) # current dag in list
                         for (i in 1:p) {
                             for (j in 1:p) {
                                 if (dag[i, j] == 1) {
                                     ccomp_opag_tmp[Z_i[[i]], Z_i[[j]]] <- 1
-                                    ccomp_opag_tmp[Z_i[[j]], Z_i[[i]]] <- 0
+                                    ccomp_opag_tmp[Z_i[[j]], Z_i[[i]]] <-
+                                        0
                                 }
                             }
                         }
                         # now ccomp_opag_tmp has the dag as a subgraph
                         # check if ccomp_opag_tmp is extendable to a dag; if not, then
                         # add k to rem (list of dags to remove from allDags)
-                        check <- pdag2dag(as(ccomp_opag_tmp, "graphNEL"))
+                        check <-
+                            pdag2dag(as(ccomp_opag_tmp, "graphNEL"))
                         if (!check$success)
                             rem <- c(rem, k)
                         if (!check$success)
@@ -492,7 +497,8 @@ listMags <-
                         if (i > nMags) {
                             cat("MORE MAGS THAN SPECIFIED BY PARAMETER 'nMags' !!!!! ",
                                 "\n")
-                            bigmaglist <- bigmaglist[!sapply(bigmaglist, is.null)]
+                            bigmaglist <-
+                                bigmaglist[!sapply(bigmaglist, is.null)]
                             cat("Finishing listMags. \n")
                             return(bigmaglist)
                             #break
@@ -557,14 +563,16 @@ remove.visible.edges <- function(x, g) {
     #removes visible edges out of node x, returns updated graph
     indX3 <-
         which(g == 3, arr.ind = TRUE, useNames = FALSE) # location of all tails in graph
-    indX4 <- subset(indX3, indX3[, 2] == x) # only tails out of node x
+    indX4 <-
+        subset(indX3, indX3[, 2] == x) # only tails out of node x
     indX5 <-
         subset(indX4, g[x, indX4[, 1]] == 2) # only directed edges out of x
     
     for (i in indX5[, 1]) {
         if (is.visible(x, i, g)) {
             g[x, i] <-
-                g[i, x] <- 0 # if directed edge out of x is visible, remove it
+                g[i, x] <-
+                0 # if directed edge out of x is visible, remove it
         }
         else
             next
@@ -618,8 +626,9 @@ dsepset.reach <- function(a, b, c, adjacency)
             if (length(edgestemp) == 0)
                 break
             for (j in seq_along(edgestemp))
-                labeled[[depth]] <- union(legal.dsep(lab.i, edgestemp[[j]]),
-                                          labeled[[depth]])
+                labeled[[depth]] <-
+                union(legal.dsep(lab.i, edgestemp[[j]]),
+                      labeled[[depth]])
         }
         if (length(labeled[[depth]]) == 0)
             break
@@ -692,8 +701,9 @@ pdsepset.reach <- function(a, b, c, adjacency)
             if (length(edgestemp) == 0)
                 break
             for (j in seq_along(edgestemp))
-                labeled[[depth]] <- union(legal.dsep(lab.i, edgestemp[[j]]),
-                                          labeled[[depth]])
+                labeled[[depth]] <-
+                union(legal.dsep(lab.i, edgestemp[[j]]),
+                      labeled[[depth]])
         }
         if (length(labeled[[depth]]) == 0)
             break
@@ -777,7 +787,8 @@ possibleDe <- function(amat, x)
     is.de[x] <- TRUE
     ## 2. case: find all the possible children of x
     indD <-
-        which(amat[x, ] != 0  & amat[, x] != 2 & !is.de) ## x (o,-)-* d
+        which(amat[x, ] != 0  &
+                  amat[, x] != 2 & !is.de) ## x (o,-)-* d
     i.pr <- rep(x, length(indD))
     while (length(indD) > 0) {
         ##next element in the queue
@@ -789,7 +800,8 @@ possibleDe <- function(amat, x)
         a.d <- amat[, d]
         a.d.p <- a.d[pred]
         ## find all possible children of d not visited yet
-        indR <- which(amat[d, ] != 0 & a.d != 2 & !is.de) ## d (o,-)-* r
+        indR <-
+            which(amat[d, ] != 0 & a.d != 2 & !is.de) ## d (o,-)-* r
         for (j in seq_along(indR)) {
             ## check that the triple <pred,d,r> is of a definite status
             ## 1. d is a collider on this subpath; this is impossible
@@ -814,7 +826,7 @@ possibleDe <- function(amat, x)
 ###################################################################
 ###################################################################
 ###################################################################
-#' Run Latent Variable-IDA
+#' Run Latent Variable-IDA - Covariance Matrix
 #'
 #' Estimate the causal effect of x on y; the graphEst and correlation
 #' matrix have to be precomputed; all MAGs can be precomputed
@@ -855,22 +867,22 @@ possibleDe <- function(amat, x)
 #'   cat("#### FOUND CYCLIC GRAPH #### \n LV-IDA won't work here! \n try again! \n")
 #' }
 #'
-#' lv.ida.est <- lv.ida(x,y,cov(data),fci.est@amat,method="local")
+#' lv.ida.est <- lv.ida.cov(x,y,cov(data),fci.est@amat,method="local")
 #' lv.ida.est # this is the multiset of causal effects of x = 2 on y = pvar
-lv.ida <- function(x.pos,
-                   y.pos,
-                   mcov,
-                   pag,
-                   method = "global",
-                   nMags = 500,
-                   localcap = NULL,
-                   possdsep = "small",
-                   verbose = FALSE,
-                   mags.local = FALSE,
-                   Z_i = NULL,
-                   opag = pag,
-                   bugwatch = FALSE,
-                   data=NULL)
+lv.ida.cov <- function(x.pos,
+                       y.pos,
+                       mcov,
+                       pag,
+                       method = "global",
+                       nMags = 500,
+                       localcap = NULL,
+                       possdsep = "small",
+                       verbose = FALSE,
+                       mags.local = FALSE,
+                       Z_i = NULL,
+                       opag = pag,
+                       bugwatch = FALSE,
+                       data = NULL)
 {
     if (verbose)
         cat("Starting...")
@@ -946,7 +958,7 @@ lv.ida <- function(x.pos,
             cat("$$ pdsep = ", pdsep, "\n")
             cat("$$ Z_i = ", Z_i, "\n \n \n")
         }
-        beta.hat <- lv.ida(
+        beta.hat <- lv.ida.cov(
             x.pos,
             y.pos,
             mcov,
@@ -1049,24 +1061,23 @@ lv.ida <- function(x.pos,
 #' @export
 #'
 lv.ida.lm <- function(x.pos,
-                   y.pos,
-                   data,
-                   pag,
-                   method = "global",
-                   nMags = 500,
-                   localcap = NULL,
-                   possdsep = "small",
-                   verbose = FALSE,
-                   mags.local = FALSE,
-                   Z_i = NULL,
-                   opag = pag,
-                   bugwatch = FALSE
-                   )
+                      y.pos,
+                      data,
+                      pag,
+                      method = "global",
+                      nMags = 500,
+                      localcap = NULL,
+                      possdsep = "small",
+                      verbose = FALSE,
+                      mags.local = FALSE,
+                      Z_i = NULL,
+                      opag = pag,
+                      bugwatch = FALSE)
 {
     if (verbose)
         cat("Starting...")
-    
-    pag <- matrix(pag, nrow(pag), ncol(pag), dimnames = NULL)
+    colnames(data) <- paste0("V", 1:ncol(data))
+    pag <- as.matrix(pag, nrow(pag), ncol(pag), dimnames = NULL)
     #amat <- pag
     #x.pos <- as.character(x.pos)
     #y.pos <- as.character(y.pos)
@@ -1181,10 +1192,12 @@ lv.ida.lm <- function(x.pos,
             ## compute effect for every MAG
             
             gMag <- am[[i]]
+            print(gMag)
             
             ### if x is not an ancestor of y, the causal effect is 0
             if (!is.ancestor(x.pos, y.pos, gMag)) {
                 beta.hat[i] <- 0
+                print("Not an ancestor")
                 next
             }
             ###
@@ -1204,12 +1217,24 @@ lv.ida.lm <- function(x.pos,
             }
             if (gMag_x[x.pos, y.pos] != 0) {
                 ### if y is adjacent to x in gMag_x
+                print("Adjacent to x in gMag_x")
                 beta.hat[i] <- NA
             } else if (length(intersect(dsepset, des)) != 1) {
                 ### if the intersection of dsepset and the descendents of x is non-empty
                 beta.hat[i] <- NA
             } else {
-                beta.hat[i] <- unname(coef(lm(data[,y.pos] ~ data[, c(x.pos, dsepset)])))
+                formula.lm <-
+                    paste0("V",
+                           y.pos,
+                           "~",
+                           "-1 + ",
+                           paste0("V", c(x.pos, dsepset), collapse = "+"))
+                print(formula.lm)
+                beta.hat[i] <-
+                    unname(coef(lm(
+                        as.formula(formula.lm), data = data
+                    )))[1]
+                #beta.hat[i] <- lm.cov(mcov, y.pos, c(x.pos, dsepset))
                 #cat("printing Mag with visible edges removed: ", gMag_x, "\n")
                 cat("dsepset = ", dsepset, "\n")
                 cat("effect estimate = ", beta.hat[i], "\n")
@@ -1217,4 +1242,94 @@ lv.ida.lm <- function(x.pos,
         } ## for ( i  n.dags)
     } ## else : method = "global"
     beta.hat
+}
+
+
+#' Estimate Causal Effects with LV-IDA 
+#'
+#' Estimates the effect p(Y | do(X)) in a PAG using the Latent-Variable IDA algorithm by Malinsky and Spirtes. 
+#' @param x.pos 
+#' @param y.pos 
+#' @param pag 
+#' @param data 
+#' @param mcov 
+#' @param method 
+#' @param nMags 
+#' @param localcap 
+#' @param possdsep 
+#' @param verbose 
+#' @param mags.local 
+#' @param Z_i 
+#' @param opag 
+#' @param bugwatch 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+lv.ida <- function(x.pos,
+                   y.pos,
+                   pag,
+                   data = NULL,
+                   mcov = NULL,
+                   method = "global",
+                   nMags = 500,
+                   localcap = NULL,
+                   possdsep = "small",
+                   verbose = FALSE,
+                   mags.local = FALSE,
+                   Z_i = NULL,
+                   opag = pag,
+                   bugwatch = FALSE) {
+    if (is.null(data) & !is.null(mcov)) {
+        print("Using lv.ida.cov")
+        return(
+            lv.ida.cov(
+                x.pos = x.pos,
+                y.pos = y.pos,
+                mcov = mcov,
+                pag = pag,
+                method = method,
+                nMags = nMags,
+                localcap = localcap,
+                possdsep = possdsep,
+                verbose = verbose,
+                mags.local = mags.local,
+                Z_i = Z_i,
+                opag = opag,
+                bugwatch = bugwatch
+            )
+        )
+    } else if (!is.null(data) & is.null(mcov)) {
+        print("Using lv.ida.lm")
+        var.names <- colnames(data)
+        x.pos.ix <- which(var.names == x.pos, arr.ind = TRUE)
+        y.pos.ix <- which(var.names == y.pos, arr.ind = TRUE)
+        if (!is.null(colnames(pag)) & !is.null(rownames(pag))) {
+            pag <- pag[var.names, var.names]
+            
+        }
+        
+        
+        return(
+            lv.ida.lm(
+                x.pos = x.pos.ix,
+                y.pos = y.pos.ix,
+                data = data,
+                pag = pag,
+                method = method,
+                nMags = nMags,
+                localcap = localcap,
+                possdsep = possdsep,
+                verbose = verbose,
+                mags.local = mags.loca,
+                Z_i = Z_i,
+                opag = opag,
+                bugwatch = bugwatch
+            )
+        )
+        
+    }
+    
+    
 }
