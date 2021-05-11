@@ -1025,7 +1025,7 @@ lv.ida.cov <- function(x.pos,
             if (gMag_x[x.pos, y.pos] != 0) {
                 ### if y is adjacent to x in gMag_x
                 beta.hat[i] <- NA
-            } else if (length(intersect(dsepset, des)) != 1) {
+            } else if (length(intersect(dsepset, des)) != 0) {
                 ### if the intersection of dsepset and the descendents of x is non-empty
                 beta.hat[i] <- NA
             } else {
@@ -1056,6 +1056,7 @@ lv.ida.cov <- function(x.pos,
 #' @param Z_i
 #' @param opag
 #' @param bugwatch
+#' @param var.names
 #'
 #' @return causal values
 #' @export
@@ -1072,7 +1073,8 @@ lv.ida.lm <- function(x.pos,
                       mags.local = FALSE,
                       Z_i = NULL,
                       opag = pag,
-                      bugwatch = FALSE)
+                      bugwatch = FALSE,
+                      var.names = NULL)
 {
     if (verbose)
         cat("Starting...")
@@ -1143,6 +1145,7 @@ lv.ida.lm <- function(x.pos,
         data <- data[, c(Z_i)]
         x.pos <- which(Z_i == x.pos)
         y.pos <- which(Z_i == y.pos)
+        new.var.names <- var.names[c(Z_i)]
         if (bugwatch == TRUE) {
             cat("$$ adj = ", adj, "\n")
             cat("$$ pdes = ", pdes, "\n")
@@ -1159,7 +1162,8 @@ lv.ida.lm <- function(x.pos,
             verbose = FALSE,
             mags.local = TRUE,
             Z_i = c(Z_i),
-            opag = pag
+            opag = pag,
+            var.names = new.var.names
         )
         
     } else {
@@ -1183,7 +1187,7 @@ lv.ida.lm <- function(x.pos,
         else
             listMags(am.pag, nMags = nMags, method = "global")
         #cat("mag list = ", "\n")
-        #print(am)
+        print("Complete listMags")
         n.mags <- length(am)
         cat("# of MAGs to enumerate = ", n.mags, "\n")
         #if(n.mags == nMags) cat("Number of MAGs listed is maxed out w.r.t. nMags; there might be MAGs in the equivalence class which are missing. Try increasing nMags.")
@@ -1192,7 +1196,6 @@ lv.ida.lm <- function(x.pos,
             ## compute effect for every MAG
             
             gMag <- am[[i]]
-            print(gMag)
             
             ### if x is not an ancestor of y, the causal effect is 0
             if (!is.ancestor(x.pos, y.pos, gMag)) {
@@ -1207,6 +1210,8 @@ lv.ida.lm <- function(x.pos,
             
             dsepset <-
                 setdiff(dsepset.reach(x.pos, y.pos,-1, gMag_x), x.pos)
+            print("Variables in gMag:")
+            print(var.names)
             
             ### the set of descendents of x
             des <- c()
@@ -1219,21 +1224,28 @@ lv.ida.lm <- function(x.pos,
                 ### if y is adjacent to x in gMag_x
                 print("Adjacent to x in gMag_x")
                 beta.hat[i] <- NA
-            } else if (length(intersect(dsepset, des)) != 1) {
+            } else if (length(intersect(dsepset, des)) != 0) {
                 ### if the intersection of dsepset and the descendents of x is non-empty
+                print("Intersection of dsepset and desc(x) is non-empty")
+                print(var.names[dsepset])
+                print(var.names[des])
                 beta.hat[i] <- NA
             } else {
                 formula.lm <-
                     paste0("V",
                            y.pos,
                            "~",
-                           "-1 + ",
+                           #"-1 + ",
                            paste0("V", c(x.pos, dsepset), collapse = "+"))
                 print(formula.lm)
-                beta.hat[i] <-
-                    unname(coef(lm(
+                
+                reg <- lm(
                         as.formula(formula.lm), data = data
-                    )))[1]
+                    )
+                print(coef(reg))
+                beta.hat[i] <-
+                    coef(reg)[[paste0("V", x.pos)]]
+                    #unname(coef(reg))[1]
                 #beta.hat[i] <- lm.cov(mcov, y.pos, c(x.pos, dsepset))
                 #cat("printing Mag with visible edges removed: ", gMag_x, "\n")
                 cat("dsepset = ", dsepset, "\n")
@@ -1303,6 +1315,7 @@ lv.ida <- function(x.pos,
     } else if (!is.null(data) & is.null(mcov)) {
         print("Using lv.ida.lm")
         var.names <- colnames(data)
+        print(rbind(var.names), 1:length(var.names))
         x.pos.ix <- which(var.names == x.pos, arr.ind = TRUE)
         y.pos.ix <- which(var.names == y.pos, arr.ind = TRUE)
         if (!is.null(colnames(pag)) & !is.null(rownames(pag))) {
@@ -1325,7 +1338,8 @@ lv.ida <- function(x.pos,
                 mags.local = mags.loca,
                 Z_i = Z_i,
                 opag = opag,
-                bugwatch = bugwatch
+                bugwatch = bugwatch,
+                var.names = var.names
             )
         )
         
